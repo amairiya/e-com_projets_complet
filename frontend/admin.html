@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Backoffice Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+
+<h2>🔐 Backoffice</h2>
+
+<!-- FORMULAIRE LOGIN -->
+<div id="login">
+    <input id="user" class="form-control mb-2" placeholder="Utilisateur">
+    <input id="password" type="password" class="form-control mb-2" placeholder="Mot de passe">
+    <button class="btn btn-primary" onclick="login()">Connexion</button>
+</div>
+
+<!-- PANEL ADMIN -->
+<div id="panel" style="display:none">
+
+    <!-- BOUTON DÉCONNEXION -->
+    <button class="btn btn-secondary mb-3" onclick="logout()">Déconnexion</button>
+
+    <!-- COMMANDES -->
+    <h3 class="mt-4">📦 Commandes</h3>
+    <table class="table table-bordered" id="orders"></table>
+
+    <!-- PRODUITS -->
+    <h3 class="mt-4">🛒 Produits</h3>
+    <!-- <button class="btn btn-warning mb-2" onclick="saveProducts()">💾 Sauvegarder</button> -->
+    <table class="table table-bordered" id="products"></table>
+
+    <!-- AJOUT PRODUIT -->
+    <h3 class="mt-4">➕ Ajouter un produit</h3>
+    <div class="mb-3">
+        <input class="form-control mb-1" id="new_id" placeholder="ID (numéro unique)">
+        <input class="form-control mb-1" id="new_name" placeholder="Nom du produit">
+        <input class="form-control mb-1" id="new_price" placeholder="Prix">
+        <input class="form-control mb-1" id="new_promo_price" placeholder="Prix promo">
+        <input class="form-control mb-1" id="new_promo" placeholder="Promo (yes/no)">
+        <input class="form-control mb-1" id="new_description" placeholder="Description">
+        <input class="form-control mb-1" id="new_images" placeholder="Images (séparées par |)">
+        <input class="form-control mb-1" id="new_stock" placeholder="Stock (quantité disponible)">
+        <button class="btn btn-success mt-2" onclick="saveProducts()">Ajouter produit</button>
+    </div>
+
+</div>
+
+<script src="admin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

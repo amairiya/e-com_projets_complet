@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    networks:
+      - internal
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:80"
+    depends_on:
+      - backend
+    networks:
+      - internal
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/db/init/:/docker-entrypoint-initdb.d/
+    networks:
+      - internal
+         
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  db_data:

@@ -1,0 +1,8 @@
+Flask
+pandas
+openpyxl
+python-dotenv
+PyJWT
+Werkzeug
+SQLAlchemy
+psycopg2-binary
