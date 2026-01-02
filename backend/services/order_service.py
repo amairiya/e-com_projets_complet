@@ -3,6 +3,7 @@ from config import ORDER_FILE
 from sqlalchemy import create_engine, text, Table, Column, Integer,DateTime, String, Float, MetaData, select, update
 from config import DATABASE_URL
 import random
+import uuid
 
 COLUMNS = [
     "date", "name", "email", "phone", "address",
@@ -48,7 +49,7 @@ orders = Table(
     "orders",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("order_number", String, unique=True),
+    Column("order_number", String),
     Column("date", DateTime, default=datetime.utcnow),
     Column("name", String, nullable=False),
     Column("email", String),
@@ -85,15 +86,11 @@ orders = Table(
 #             conn.execute(stmt)
 #         conn.commit()
 
-def generate_order_number():
-    """Génère un numéro de commande unique basé sur la date + un nombre aléatoire."""
-    date_part = datetime.now().strftime("%Y%m%d")
-    random_part = str(random.randint(1000, 9999))
-    return f"{date_part}-{random_part}"
+
 
 def add_order(customer, items):
     """Ajoute des articles au panier et crée un order_number unique."""
-    order_number = generate_order_number()
+    order_number = str(uuid.uuid4())  # Génère un UUID unique
     
     with engine.connect() as conn:
         for item in items:

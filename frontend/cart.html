@@ -200,8 +200,6 @@ function order() {
         if(data.status === "ok"){
             // Affiche un popup avec le numéro de commande
             const orderNumber = data.order_number || "N/A";
-            console.log(orderNumber);
-            console.log(data);
             alert(`✅ Commande enregistrée !\nNuméro de commande : ${orderNumber}`);
 
             // Mettre à jour le stock local
