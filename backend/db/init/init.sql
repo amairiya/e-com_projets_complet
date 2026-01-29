@@ -14,24 +14,6 @@ CREATE TABLE IF NOT EXISTS products (
     stock INT DEFAULT 0
 );
 
--- Table des commandes
--- CREATE TABLE IF NOT EXISTS orders (
---     id SERIAL PRIMARY KEY,
---     date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     name TEXT NOT NULL,
---     email TEXT,
---     phone TEXT,
---     address TEXT,
---     product TEXT,
---     price NUMERIC(10,2),
---     quantity INT DEFAULT 1,
---     livré TEXT DEFAULT 'Non',
---     date_livré TIMESTAMP,
---     retourné TEXT DEFAULT 'Non',
---     date_retour TIMESTAMP,
---     fermé TEXT DEFAULT 'Non'
--- );
-
 
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,

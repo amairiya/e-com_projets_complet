@@ -1,5 +1,5 @@
 # Image Python légère
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # Empêche Python de générer des fichiers .pyc
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+    # Créer un user non-root
+RUN addgroup --system app && adduser --system --group app
+
 # Copier les fichiers de dépendances
 COPY requirements.txt .
 
@@ -22,6 +25,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le code de l'application
 COPY . .
+
+# Donner les droits à l’utilisateur
+RUN chown -R app:app /app
+
+USER app
 
 # Exposer le port Flask
 EXPOSE 5000

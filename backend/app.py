@@ -4,6 +4,7 @@ from routes.admin import admin_bp
 
 app = Flask(__name__)
 
+app.config["MAX_CONTENT_LENGTH"] = 512 * 1024  # 512 KB
 app.register_blueprint(public_bp)
 app.register_blueprint(admin_bp)
 

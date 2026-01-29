@@ -23,7 +23,7 @@ function renderProducts() {
     container.innerHTML = "";
 
     products.forEach((p, index) => {
-        const images = p.images ? p.images.split("|").map(i => i.trim()) : [];
+        const images = p.images ? p.images.split(",").map(i => i.trim()) : [];
         const isPromo = p.promo === "yes";
         const price = isPromo ? p.promo_price : p.price;
         const inStock = p.stock > 0;
@@ -75,59 +75,7 @@ function renderProducts() {
 
 
 
-// // Commander
-// function order() {
-//     if (!cart.length) {
-//         alert("Panier vide");
-//         return;
-//     }
 
-//     const customer = {
-//         name: document.getElementById("name").value,
-//         email: document.getElementById("email").value,
-//         phone: document.getElementById("phone").value,
-//         address: document.getElementById("address").value
-//     };
-
-//     if (!customer.name || !customer.phone) {
-//         alert("Nom et téléphone obligatoires");
-//         return;
-//     }
-
-//     fetch("/api/order", {
-//         method: "POST",
-//         headers: {"Content-Type": "application/json"},
-//         body: JSON.stringify({
-//             customer: customer,
-//             items: cart
-//         })
-//     }).then(res => {
-//         if(res.ok){
-//             alert("✅ Commande enregistrée !");
-            
-//             // Mettre à jour le stock local
-//             cart.forEach(item => {
-//                 const prod = products.find(p => p.name === item.product);
-//                 if (prod) {
-//                     prod.stock -= item.quantity;
-//                     if (prod.stock < 0) prod.stock = 0;
-//                 }
-//             });
-
-//             cart = [];
-//             total = 0;
-//             renderCart();
-//             renderProducts(); // Re-render pour mettre à jour le stock affiché
-
-//             document.getElementById("name").value = "";
-//             document.getElementById("email").value = "";
-//             document.getElementById("phone").value = "";
-//             document.getElementById("address").value = "";
-//         } else {
-//             alert("Erreur lors de la commande.");
-//         }
-//     });
-// }
 
 
 // Commander

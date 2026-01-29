@@ -8,7 +8,7 @@ let token = localStorage.getItem("admin_token");
 
 function authHeaders() {
     return {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         "Authorization": "Bearer " + token
     };
 }
@@ -24,11 +24,12 @@ function isLoggedIn() {
 function login() {
     const user = document.getElementById("user").value;
     const password = document.getElementById("password").value;
-
+    const primary_key = document.getElementById("primary_key").value;
+    const secondary_key = document.getElementById("secondary_key").value;
     fetch("/api/admin/login", {   // ⚠ ici /api/admin/login
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user, password })
+        body: JSON.stringify({ user, password , primary_key ,secondary_key})
     })
     .then(res => res.json())
     .then(data => {
@@ -269,13 +270,154 @@ function selectStatus(index, field, value) {
     </select>`;
 }
 
-function updateOrder(index, field, value) {
-    fetch("/api/admin/order/update", {
-        method: "PATCH",
-        headers: authHeaders(),
-        body: JSON.stringify({ index, field, value })
-    })
-    .then(res => res.json())
-    .then(() => loadOrders())
-    .catch(() => alert("Erreur mise à jour"));
-}
+// function updateOrder(index, field, value) {
+//     fetch("/api/admin/order/update", {
+//         method: "PATCH",
+//         headers: authHeaders(),
+//         body: JSON.stringify({ index, field, value })
+//     })
+//     .then(res => res.json())
+//     .then(() => loadOrders())
+//     .catch(() => alert("Erreur mise à jour"));
+// }
+
+
+
+
+
+
+
+
+
+        // -------------------------------
+        // Télécharger CSV downloadProductsCSV
+        // -------------------------------
+        async function downloadProductsCSV() {
+            try {
+                const response = await fetch(`/api/admin/export/products`,{headers: authHeaders()});
+                if (!response.ok) throw new Error("Erreur téléchargement CSV");
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `products.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+
+        const downloadBtnOrders = document.getElementById("downloadBtnOrders");
+        async function downloadOrdersCSV() {
+            try {
+                const response = await fetch(`/api/admin/export/orders`,{headers: authHeaders()});
+                if (!response.ok) throw new Error("Erreur téléchargement CSV");
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `orders.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+
+
+
+        
+
+
+
+const downloadBtn = document.getElementById("downloadBtn");
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
+const message = document.getElementById("message");
+
+// Événement click pour uploader le CSV
+    uploadBtn.addEventListener("click", async () => {
+        const file = fileInput.files[0];
+        if (!file) {
+            message.textContent = "Sélectionne un fichier CSV.";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("/api/admin/upload/products", {
+                method: "POST",
+                headers: authHeaders(), // ✅ seulement Authorization
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                message.textContent = data.success;
+                alert("Importation terminée avec succès. La page va se recharger !");
+                window.location.reload(); // reload après l'alerte
+            } else {
+                message.textContent = "Erreur: " + (data.error || data.message || "Impossible d'uploader");
+            }
+        } catch (err) {
+            message.textContent = "Erreur: " + err.message;
+        }
+    });
+
+
+
+
+
+
+document.getElementById("generateInvoiceBtn").addEventListener("click", async () => {
+    const orderNumber = document.getElementById("orderNumberInput").value.trim();
+    if (!orderNumber) {
+        alert("Merci d'entrer un numéro de commande !");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/invoice/${orderNumber}`, {
+            headers: authHeaders()
+        });
+
+        if (!response.ok) {
+            alert("Erreur récupération facture !");
+            return;
+        }
+
+        const htmlContent = await response.text();
+
+        // Crée un Blob avec le HTML
+        const blob = new Blob([htmlContent], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+
+        // Crée un lien temporaire pour télécharger le fichier
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `facture_${orderNumber}.html`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        alert("Facture téléchargée !");
+    } catch (err) {
+        alert("Erreur: " + err.message);
+    }
+});
+
+
+
