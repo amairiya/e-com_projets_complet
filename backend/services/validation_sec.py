@@ -3,6 +3,7 @@ import re
 from sqlalchemy import create_engine
 from config import DATABASE_URL
 from sqlalchemy import text
+from services.logger import log
 
 # Regex ultra-strict
 NAME_REGEX = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ0-9\- ]{1,50}$")  # lettres, chiffres, espaces, tirets, accents simples
@@ -38,17 +39,18 @@ def check_order_prices(items):
             quantity = item["quantity"]
             client_price = Decimal(item["price"])
 
-            # ⚠️ Use text() to make raw SQL executable
             query = text("SELECT name, promo_price FROM products WHERE id = :id")
             result = conn.execute(query, {"id": product_id}).fetchone()
 
             if not result:
+                log(f"Product {product_id} not found", level="ERROR")
                 raise ValueError(f"Product {product_id} not found")
 
             name, db_price = result
             db_price = Decimal(db_price)
 
             if client_price != db_price:
+                log(f"Price mismatch for product {product_id}: client {client_price} vs db {db_price}", level="WARNING")
                 raise ValueError(f"Price mismatch for product {product_id}: client {client_price} vs db {db_price}")
 
             line_total = db_price * quantity
@@ -59,27 +61,27 @@ def check_order_prices(items):
                 "name": name,
                 "price": str(db_price),
                 "quantity": quantity
-                # ,
-                # "line_total": str(line_total)
             })
 
+    log(f"Order items checked successfully, total={total_price}", level="INFO")
     return validated_items
 
 
 
 
+
+
+
 def validate_items(items):
-    """
-    Vérifie une liste d'items pour prévenir payload malveillant.
-    Retourne la liste validée ou lève ValueError.
-    """
     if not isinstance(items, list) or not items or len(items) > MAX_ITEMS:
+        log("Invalid items list", level="ERROR")
         raise ValueError("Invalid items list")
 
     validated_items = []
 
     for item in items:
         if not isinstance(item, dict):
+            log("Item is not a dict", level="ERROR")
             raise ValueError("Each item must be a dict")
 
         item_id = str(item.get("id", ""))
@@ -87,17 +89,20 @@ def validate_items(items):
         price = str(item.get("price", ""))
         quantity = str(item.get("quantity", ""))
 
-        # Vérifications regex
         if not ID_REGEX.fullmatch(item_id):
+            log(f"Invalid id: {item_id}", level="WARNING")
             raise ValueError(f"Invalid id: {item_id}")
 
         if not NAME_REGEX.fullmatch(name):
+            log(f"Invalid name: {name}", level="WARNING")
             raise ValueError(f"Invalid name: {name}")
 
         if not PRICE_REGEX.fullmatch(price):
+            log(f"Invalid price: {price}", level="WARNING")
             raise ValueError(f"Invalid price: {price}")
 
         if not QTY_REGEX.fullmatch(quantity):
+            log(f"Invalid quantity: {quantity}", level="WARNING")
             raise ValueError(f"Invalid quantity: {quantity}")
 
         validated_items.append({
@@ -107,7 +112,9 @@ def validate_items(items):
             "quantity": int(quantity)
         })
 
+    log(f"Items validated successfully: {len(validated_items)} items", level="INFO")
     return validated_items
+
 
 
 
@@ -146,11 +153,8 @@ def process_total(items):
 
 
 def validate_customer(customer):
-    """
-    Valide les champs du customer pour éviter payload malveillant.
-    Retourne le customer nettoyé ou lève ValueError.
-    """
     if not isinstance(customer, dict):
+        log("Customer data is not a dict", level="ERROR")
         raise ValueError("Customer must be a dict")
 
     name = customer.get("name", "")
@@ -159,15 +163,19 @@ def validate_customer(customer):
     address = customer.get("address", "")
 
     if not NAME_CUSTUMER_REGEX.fullmatch(name):
+        log(f"Invalid customer name: {name}", level="WARNING")
         raise ValueError(f"Invalid customer name: {name}")
     if not EMAIL_REGEX.fullmatch(email):
+        log(f"Invalid customer email: {email}", level="WARNING")
         raise ValueError(f"Invalid customer email: {email}")
     if not PHONE_REGEX.fullmatch(phone):
+        log(f"Invalid customer phone: {phone}", level="WARNING")
         raise ValueError(f"Invalid customer phone: {phone}")
     if not ADDRESS_REGEX.fullmatch(address):
+        log(f"Invalid customer address: {address}", level="WARNING")
         raise ValueError(f"Invalid customer address: {address}")
 
-    # Retourne le dict nettoyé pour usage sûr
+    log(f"Customer validated: {name}, {email}", level="INFO")
     return {
         "name": name.strip(),
         "email": email.strip(),

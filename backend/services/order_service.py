@@ -2,6 +2,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, text, Table, Column, Integer,DateTime, String, Float, MetaData, select, update
 from config import DATABASE_URL , MAIL_SERVER , MAIL_PORT , MAIL_USE_TLS , MAIL_USERNAME , MAIL_PASSWORD , MAIL_DEFAULT_SENDER
 
+from services.logger import log
 
 import random
 import uuid
@@ -29,7 +30,6 @@ def load_orders():
         # Convertir chaque ligne en dictionnaire
         orders = [dict(row._mapping) for row in result]
     return orders
-
 
 
 
@@ -84,7 +84,7 @@ def add_order(customer, items):
         print("Facture HTML générée : facture.html")
                 
     
-        
+    log(f"Commande créée pour {customer.get('name')}", level="INFO", order_number=order_number)
     return order_number
 
 
@@ -268,9 +268,10 @@ def send_email_gmail(
             server.starttls()
             server.login(sender_email, app_password)
             server.send_message(msg)
+        log(f"Email envoyé à {recipient_email}", level="INFO")
 
         return True
 
     except Exception as e:
-        print("Erreur envoi email :", e)
+        log(f"Erreur email à {recipient_email}: {e}", level="ERROR")
         return False
