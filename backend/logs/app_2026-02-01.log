@@ -1,0 +1,11 @@
+[2026-02-01 19:27:25,390] [INFO] products_requested | ip=172.19.0.4 | method=GET | path=/products
+[2026-02-01 19:27:25,503] [INFO] products_returned | ip=172.19.0.4 | method=GET | path=/products | status=200 | duration_ms=112
+[2026-02-01 19:27:25,505] [INFO] request_completed | ip=172.19.0.4 | method=GET | path=/products | status=200
+[2026-02-01 19:27:36,749] [INFO] order_request_received | ip=172.19.0.4 | method=POST | path=/order
+[2026-02-01 19:27:36,751] [INFO] Customer validated: Motez amairi, amairi.moatez777@gmail.com
+[2026-02-01 19:27:36,752] [INFO] Items validated successfully: 1 items
+[2026-02-01 19:27:36,766] [INFO] Order items checked successfully, total=440.00
+[2026-02-01 19:27:36,797] [INFO] Commande créée pour Motez amairi | order_number=92a12d69-bb9c-4ccb-a601-988a967f8e87
+[2026-02-01 19:27:36,798] [INFO] order_created | ip=172.19.0.4 | method=POST | path=/order | status=201 | duration_ms=48 | order_number=92a12d69-bb9c-4ccb-a601-988a967f8e87
+[2026-02-01 19:27:38,062] [INFO] Email envoyé à amairi.moatez777@gmail.com
+[2026-02-01 19:27:38,063] [INFO] request_completed | ip=172.19.0.4 | method=POST | path=/order | status=201

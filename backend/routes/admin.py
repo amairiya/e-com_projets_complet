@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify , send_file , Response
+from flask import Blueprint, request, jsonify , send_file , Response ,g
 import os
+import time
 from utils.auth import generate_token, check_login, admin_required
 from services.product_service import load_products , delete_product  , add_product
 from services.order_service import load_orders
@@ -10,40 +11,91 @@ from services.upload_porduct_service import import_products_from_csv
 
 from services.upload_orders_service import export_table_Orders_to_csv
 
+from services.logger import log
 
 admin_bp = Blueprint("admin", __name__)
 
+@admin_bp.before_request
+def start_timer():
+    g.start_time = time.time()
+    
+@admin_bp.after_request
+def after_request(response):
+    log_access(
+        message="request_completed",
+        status=response.status_code,
+        # duration_ms si tu mesures le temps
+        # order_number si tu veux
+    )
+    return response
+
+
+def log_access(message, status=None, duration_ms=None, order_number=None, level="INFO"):
+    log(
+        message=str(message),
+        level=level,
+        ip=request.headers.get("X-Forwarded-For", request.remote_addr),
+        method=request.method,
+        path=request.path,
+        status=status,
+        duration_ms=duration_ms,
+        order_number=order_number
+    )
 
 @admin_bp.route("/admin/login", methods=["POST"])
 def login():
     data = request.json
-    print(data)
-    if check_login(data["user"], data["password"] , data["primary_key"] , data["secondary_key"]):
+
+    if check_login(data["user"], data["password"], data["primary_key"], data["secondary_key"]):
         token = generate_token(data["user"])
+        log_access(
+            message=f"admin_login_success | user={data['user']}",
+            status=200,
+            level="INFO"
+        )
         return jsonify({"token": token})
-    return jsonify({"error": "Invalid credentials"}), 401
+    else:
+        log_access(
+            message=f"admin_login_failed | user={data.get('user')}",
+            status=401,
+            level="WARNING"
+        )
+        return jsonify({"error": "Invalid credentials"}), 401
 
 
 @admin_bp.route("/admin/products", methods=["GET", "PUT", "POST"])
 @admin_required
 def products():
     if request.method == "GET":
+        log_access(message="admin_view_products", status=200, level="INFO")
         return jsonify(load_products())
 
     # POST pour ajouter un produit
-    product = request.json  # doit être un dict, pas une liste
+    product = request.json  # doit être un dict
     if not product.get("id"):
+        log_access(
+            message="admin_add_product_failed | missing_id",
+            status=400,
+            level="WARNING"
+        )
         return jsonify({"status": "error", "message": "ID requis"}), 400
 
     from services.product_service import add_product
     result = add_product(product)
+    log_access(
+        message=f"admin_add_product | product_id={product['id']}",
+        status=200,
+        level="INFO"
+    )
     return jsonify(result)
 
 
 @admin_bp.route("/admin/orders")
 @admin_required
 def orders():
+    log_access(message="admin_view_orders", status=200, level="INFO")
     return jsonify(load_orders())
+
 
 @admin_bp.route("/admin/products/<int:product_id>", methods=["DELETE"])
 @admin_required
@@ -51,13 +103,19 @@ def remove_product(product_id):
     """Supprime un produit par son ID"""
     deleted_count = delete_product(product_id)
     if deleted_count:
+        log_access(
+            message=f"admin_remove_product | product_id={product_id}",
+            status=200,
+            level="INFO"
+        )
         return jsonify({"status": "ok", "message": "Produit supprimé"})
     else:
+        log_access(
+            message=f"admin_remove_product_failed | product_id={product_id}",
+            status=404,
+            level="WARNING"
+        )
         return jsonify({"status": "error", "message": "Produit introuvable"}), 404
-    
-    
-    
-    
     
     
 

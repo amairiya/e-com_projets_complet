@@ -12,12 +12,11 @@ ID_REGEX = re.compile(r"^[1-9][0-9]*$")  # entiers positifs
 QTY_REGEX = re.compile(r"^[1-9][0-9]{0,2}$")  # 1 à 999
 
 
-import re
 
 # Regex strict
 NAME_CUSTUMER_REGEX = re.compile(r"^[A-Za-zÀ-ÖØ-öø-ÿ0-9\- ]{1,50}$")  # lettres, chiffres, tirets, accents simples
 EMAIL_REGEX = re.compile(r"^[\w\.-]+@[\w\.-]+\.\w{2,}$")      # email simple
-PHONE_REGEX = re.compile(r"^\+?[0-9]{7,15}$")                 # chiffres + optionnel "+"
+PHONE_REGEX = re.compile(r"^\+?[0-9 ]+$")                # chiffres + optionnel "+"
 ADDRESS_REGEX = re.compile(r"^[A-Za-z0-9À-ÖØ-öø-ÿ ,\.\-]{5,100}$")  # lettres, chiffres, espaces, virgules, points, tirets
 
 

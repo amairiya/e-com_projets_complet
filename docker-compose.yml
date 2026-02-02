@@ -10,6 +10,9 @@ services:
       - internal
     depends_on:
       - db
+    volumes:
+      # Monte le dossier de logs de l'hôte vers /app/logs dans le conteneur
+      - ./backend/logs:/app/logs
     restart: unless-stopped
 
   frontend:
@@ -62,3 +65,4 @@ volumes:
 
 
 
+# t3.medium , 4 Go RAM , 20–30 GB stockage 
